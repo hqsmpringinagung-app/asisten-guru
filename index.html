@@ -109,6 +109,11 @@
         <span>Beranda & Ringkasan</span>
       </button>
 
+      <button onclick="switchTab('materi')" id="nav-materi" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+        <i data-lucide="book-marked" class="w-5 h-5"></i>
+        <span>Materi & BAB</span>
+      </button>
+
       <button onclick="switchTab('jurnal')" id="nav-jurnal" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200">
         <i data-lucide="file-text" class="w-5 h-5"></i>
         <span>Jurnal Harian</span>
@@ -117,11 +122,6 @@
       <button onclick="switchTab('kehadiran')" id="nav-kehadiran" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200">
         <i data-lucide="calendar" class="w-5 h-5"></i>
         <span>Presensi / Kehadiran</span>
-      </button>
-
-      <button onclick="switchTab('materi')" id="nav-materi" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200">
-        <i data-lucide="book-marked" class="w-5 h-5"></i>
-        <span>Materi & BAB</span>
       </button>
 
       <button onclick="switchTab('nilai')" id="nav-nilai" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200">
