@@ -150,10 +150,22 @@
         <h2 id="header-title" class="text-xl font-bold text-slate-800">Dashboard Overview</h2>
         <p id="header-desc" class="text-sm text-slate-500">Rangkuman aktivitas akademik dan performa mengajar.</p>
       </div>
-      <div class="flex items-center space-x-3">
-        <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">
-          Tahun Ajaran: 2026/2027
-        </span>
+      <div class="flex items-center space-x-2.5">
+        <select
+          id="global-ta-select"
+          class="text-xs font-bold px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-all"
+        >
+          <option value="2025/2026">TA: 2025/2026</option>
+          <option value="2026/2027" selected>TA: 2026/2027</option>
+          <option value="2027/2028">TA: 2027/2028</option>
+        </select>
+        <select
+          id="global-semester-select"
+          class="text-xs font-bold px-3 py-1.5 bg-violet-50 text-violet-700 rounded-full border border-violet-200 focus:outline-none focus:ring-2 focus:ring-violet-500 cursor-pointer transition-all"
+        >
+          <option value="Ganjil" selected>Semester: Ganjil</option>
+          <option value="Genap">Semester: Genap</option>
+        </select>
       </div>
     </header>
 
@@ -648,7 +660,9 @@
       students: [],
       chapters: [],
       journals: [],
-      attendance: []
+      attendance: [],
+      ta: '2026/2027',
+      semester: 'Ganjil'
     };
 
     // State bantuan UI
@@ -672,6 +686,12 @@
       state.chapters = JSON.parse(localStorage.getItem('guru_chapters')) || DEFAULT_CHAPTERS;
       state.journals = JSON.parse(localStorage.getItem('guru_journals')) || DEFAULT_JOURNALS;
       state.attendance = JSON.parse(localStorage.getItem('guru_attendance')) || DEFAULT_ATTENDANCE;
+      
+      // Muat pengaturan Semester dan TA aktif
+      state.ta = localStorage.getItem('guru_ta') || '2026/2027';
+      state.semester = localStorage.getItem('guru_semester') || 'Ganjil';
+      document.getElementById('global-ta-select').value = state.ta;
+      document.getElementById('global-semester-select').value = state.semester;
 
       // Inisialisasi accordion untuk chapter awal
       state.chapters.forEach(c => {
@@ -695,6 +715,10 @@
       document.getElementById('jurnal-select-chapter').addEventListener('change', handleJournalChapterChange);
       document.getElementById('jurnal-select-topic').addEventListener('change', handleJournalTopicChange);
 
+      // Event listener selektor global di Header
+      document.getElementById('global-ta-select').addEventListener('change', handleGlobalTaChange);
+      document.getElementById('global-semester-select').addEventListener('change', handleGlobalSemesterChange);
+
       // Daftarkan listener submit form
       setupFormListeners();
 
@@ -708,9 +732,25 @@
       localStorage.setItem('guru_chapters', JSON.stringify(state.chapters));
       localStorage.setItem('guru_journals', JSON.stringify(state.journals));
       localStorage.setItem('guru_attendance', JSON.stringify(state.attendance));
+      localStorage.setItem('guru_ta', state.ta);
+      localStorage.setItem('guru_semester', state.semester);
       
       // Update data di semua tab
       renderAll();
+    }
+
+    function handleGlobalTaChange(e) {
+      state.ta = e.target.value;
+      localStorage.setItem('guru_ta', state.ta);
+      showToast(`Tahun Ajaran diubah ke ${state.ta}`);
+      saveState();
+    }
+
+    function handleGlobalSemesterChange(e) {
+      state.semester = e.target.value;
+      localStorage.setItem('guru_semester', state.semester);
+      showToast(`Semester aktif diubah ke ${state.semester}`);
+      saveState();
     }
 
     function triggerFullReset() {
@@ -906,7 +946,9 @@
           topic: topicObj.title,
           notes: notesVal,
           impediment: impedimentVal,
-          solution: solutionVal
+          solution: solutionVal,
+          ta: state.ta,
+          semester: state.semester
         };
 
         state.journals.unshift(newJournal); // Masukkan di baris teratas
@@ -1136,6 +1178,16 @@
                     <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded font-medium border border-slate-200">
                       ${j.date}
                     </span>
+                    ${j.semester ? `
+                      <span class="text-xs bg-violet-50 text-violet-700 px-2.5 py-1 rounded font-bold border border-violet-150">
+                        Semester: ${j.semester}
+                      </span>
+                    ` : ''}
+                    ${j.ta ? `
+                      <span class="text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded font-semibold border border-amber-150">
+                        TA: ${j.ta}
+                      </span>
+                    ` : ''}
                   </div>
                   <h4 class="text-md font-bold text-slate-800 mt-2">${j.chapter}</h4>
                   <p class="text-xs text-indigo-600 font-semibold">${j.topic}</p>
@@ -1321,7 +1373,9 @@
         id: existingIndex !== -1 ? state.attendance[existingIndex].id : 'att_' + Date.now(),
         date: inputDate,
         class: selectClass,
-        records: { ...attendanceRecordsTemp }
+        records: { ...attendanceRecordsTemp },
+        ta: state.ta,
+        semester: state.semester
       };
 
       if (existingIndex !== -1) {
@@ -1334,7 +1388,6 @@
       saveState();
     }
 
-    /* */
     function renderAttendanceHistory() {
       const container = document.getElementById('attendance-history-list');
       container.innerHTML = '';
@@ -1346,7 +1399,21 @@
           </div>
         `;
       } else {
+        // Urutkan secara kronologis (terlama ke terbaru) untuk menghitung Pertemuan Ke-X per Kelas
+        const sortedAttendance = [...state.attendance].sort((a, b) => new Date(a.date) - new Date(b.date));
+        const classCounters = {};
+        const meetingNumbers = {};
+
+        sortedAttendance.forEach(att => {
+          if (!classCounters[att.class]) {
+            classCounters[att.class] = 0;
+          }
+          classCounters[att.class] += 1;
+          meetingNumbers[att.id] = classCounters[att.class];
+        });
+
         state.attendance.forEach(att => {
+          const meetingNum = meetingNumbers[att.id] || 1;
           const vals = Object.values(att.records);
           const hadir = vals.filter(v => v === 'Hadir').length;
           const sakit = vals.filter(v => v === 'Sakit').length;
@@ -1356,12 +1423,25 @@
           container.innerHTML += `
             <div class="p-4 rounded-xl border border-slate-150 bg-slate-50/50 flex flex-col justify-between">
               <div>
-                <div class="flex justify-between items-center mb-2">
+                <div class="flex justify-between items-center mb-1">
                   <span class="text-xs font-extrabold bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded border border-indigo-150">
                     ${att.class}
                   </span>
                   <span class="text-xs text-slate-500 font-medium">${att.date}</span>
                 </div>
+
+                <!-- TAMPILAN NOMOR PERTEMUAN KELAS -->
+                <div class="text-xs font-extrabold text-indigo-600 mt-1 mb-1">
+                  Pertemuan ke-${meetingNum}
+                </div>
+                
+                ${att.semester && att.ta ? `
+                  <div class="flex space-x-1.5 text-[9px] font-bold text-slate-400 mb-2">
+                    <span>Semester: ${att.semester}</span>
+                    <span>•</span>
+                    <span>TA: ${att.ta}</span>
+                  </div>
+                ` : ''}
                 
                 <div class="grid grid-cols-4 gap-1 text-center text-[10px] font-bold mt-2">
                   <div class="bg-emerald-50 text-emerald-700 py-1 px-1 rounded border border-emerald-100">
@@ -1402,7 +1482,6 @@
       }
     }
 
-    /* */
     let selectedAttRecordIdForLoad = null;
 
     function showAttendanceDetail(id) {
@@ -1411,7 +1490,14 @@
 
       selectedAttRecordIdForLoad = id;
 
-      document.getElementById('att-detail-title').innerText = `Kehadiran Kelas ${att.class}`;
+      // Cari nomor pertemuan kronologis khusus kelas ini untuk judul pop-up
+      const classSorted = state.attendance
+        .filter(a => a.class === att.class)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+      const meetingIndex = classSorted.findIndex(a => a.id === id);
+      const meetingNum = meetingIndex !== -1 ? meetingIndex + 1 : 1;
+
+      document.getElementById('att-detail-title').innerText = `Kehadiran Kelas ${att.class} (Pertemuan ke-${meetingNum})`;
       document.getElementById('att-detail-subtitle').innerText = `Tanggal Pelaksanaan: ${att.date}`;
 
       const listContainer = document.getElementById('att-detail-list');
