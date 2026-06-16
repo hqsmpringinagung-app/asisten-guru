@@ -507,9 +507,10 @@
 
               <!-- Daftar Siswa untuk Absensi -->
               <div id="attendance-students-wrapper" class="space-y-4">
-                <div class="hidden sm:grid grid-cols-12 gap-2 pb-2 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  <div class="col-span-6">Nama Siswa</div>
-                  <div class="col-span-6 text-center">Opsi Kehadiran</div>
+                <div class="hidden sm:grid grid-cols-12 gap-3 pb-2 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  <div class="col-span-4">Nama Siswa</div>
+                  <div class="col-span-4 text-center">Opsi Kehadiran</div>
+                  <div class="col-span-4">Keterangan Khusus</div>
                 </div>
 
                 <div id="attendance-students-list" class="divide-y divide-slate-100 max-h-96 overflow-y-auto pr-2">
@@ -1298,6 +1299,7 @@
 
     // ================= RENDERING: TAB KEHADIRAN =================
     let attendanceRecordsTemp = {}; // Menyimpan perubahan sementara sebelum tombol simpan ditekan
+    let attendanceNotesTemp = {}; // Menyimpan catatan keterangan sementara sebelum tombol simpan ditekan
 
     function renderAttendanceView() {
       const selectClass = document.getElementById('attendance-select-class').value;
@@ -1318,24 +1320,29 @@
         // Tarik data presensi tersimpan atau inisialisasi default "Hadir"
         const existing = state.attendance.find(a => a.class === selectClass && a.date === inputDate && a.ta === state.ta && a.semester === state.semester);
         attendanceRecordsTemp = existing ? { ...existing.records } : {};
+        attendanceNotesTemp = existing && existing.notes ? { ...existing.notes } : {};
 
         classStudents.forEach(student => {
           // Jika belum ada record sementara, atur default 'Hadir'
           if (!attendanceRecordsTemp[student.id]) {
             attendanceRecordsTemp[student.id] = "Hadir";
           }
+          if (!attendanceNotesTemp[student.id]) {
+            attendanceNotesTemp[student.id] = "";
+          }
 
           const currentStatus = attendanceRecordsTemp[student.id];
+          const currentNote = attendanceNotesTemp[student.id];
 
           // Buat baris status tombol kehadiran
           containerList.innerHTML += `
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 py-3.5 items-center">
-              <div class="col-span-6">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 py-3.5 items-center">
+              <div class="col-span-4">
                 <p class="text-sm font-semibold text-slate-700">${student.name}</p>
                 <p class="text-xs text-slate-400">ID: ${student.id}</p>
               </div>
 
-              <div class="col-span-6 flex justify-between sm:justify-around bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+              <div class="col-span-4 flex justify-between sm:justify-around bg-slate-50 p-1.5 rounded-lg border border-slate-200">
                 ${['Hadir', 'Sakit', 'Izin', 'Alpa'].map(status => {
                   const isActive = currentStatus === status;
                   let activeClass = '';
@@ -1351,12 +1358,23 @@
                   return `
                     <button
                       onclick="changeTempAttendance('${student.id}', '${status}')"
-                      class="px-3 py-1 rounded text-xs font-bold transition-all ${activeClass}"
+                      class="px-2.5 py-1 rounded text-[11px] font-bold transition-all ${activeClass}"
                     >
                       ${status}
                     </button>
                   `;
                 }).join('')}
+              </div>
+
+              <!-- Input Kolom Keterangan Khusus -->
+              <div class="col-span-4">
+                <input
+                  type="text"
+                  placeholder="Keterangan (contoh: Tidak berseragam)"
+                  value="${currentNote}"
+                  oninput="changeTempAttendanceNote('${student.id}', this.value)"
+                  class="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white"
+                />
               </div>
             </div>
           `;
@@ -1365,6 +1383,10 @@
 
       // Render histori rekap absensi di panel kanan
       renderAttendanceHistory();
+    }
+
+    function changeTempAttendanceNote(studentId, noteValue) {
+      attendanceNotesTemp[studentId] = noteValue;
     }
 
     function changeTempAttendance(studentId, status) {
@@ -1381,7 +1403,7 @@
           const buttons = studentRow.querySelectorAll('button');
           buttons.forEach(btn => {
             const btnText = btn.innerText.trim();
-            btn.className = "px-3 py-1 rounded text-xs font-bold transition-all text-slate-500 hover:text-slate-800";
+            btn.className = "px-2.5 py-1 rounded text-[11px] font-bold transition-all text-slate-500 hover:text-slate-800";
             if (btnText === currentStatus) {
               if (currentStatus === 'Hadir') btn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
               else if (currentStatus === 'Sakit') btn.classList.add('bg-amber-500', 'text-white', 'shadow-sm');
@@ -1410,6 +1432,7 @@
         date: inputDate,
         class: selectClass,
         records: { ...attendanceRecordsTemp },
+        notes: { ...attendanceNotesTemp },
         ta: state.ta,
         semester: state.semester
       };
@@ -1550,6 +1573,7 @@
       } else {
         classStudents.forEach(student => {
           const status = att.records[student.id] || "Belum Absen";
+          const currentNote = att.notes && att.notes[student.id] ? att.notes[student.id] : "";
           let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
           if (status === "Hadir") badgeColor = "bg-emerald-50 text-emerald-700 border-emerald-150";
           else if (status === "Sakit") badgeColor = "bg-amber-50 text-amber-700 border-amber-150";
@@ -1561,6 +1585,7 @@
               <div>
                 <p class="text-sm font-bold text-slate-700">${student.name}</p>
                 <p class="text-[10px] text-slate-400">ID: ${student.id}</p>
+                ${currentNote ? `<p class="text-xs text-indigo-600 font-semibold mt-1">Catatan: ${currentNote}</p>` : ''}
               </div>
               <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${badgeColor}">
                 ${status}
@@ -2157,7 +2182,7 @@
       printWindow.document.write(`
         <html>
         <head>
-          <title>Cetak Jurnal Mengajar</title>
+          <title>Cetak Jurnal Mengajar - Kabupaten Kediri</title>
           <style>
             body { font-family: 'Inter', sans-serif; padding: 40px; color: #333; }
             .header { text-align: center; margin-bottom: 30px; border-bottom: 3px double #333; padding-bottom: 15px; }
@@ -2206,7 +2231,7 @@
               <p style="font-size: 10px; color: #666; margin: 2px 0;">NIP. .............................</p>
             </div>
             <div class="sig-box">
-              <p>Surabaya, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+              <p>Kabupaten Kediri, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
               <p style="margin-top: 60px; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 3px;">Guru Mata Pelajaran</p>
               <p style="font-size: 10px; color: #666; margin: 2px 0;">NIP. .............................</p>
             </div>
@@ -2255,7 +2280,7 @@
       printWindow.document.write(`
         <html>
         <head>
-          <title>Cetak Rekap Nilai Siswa</title>
+          <title>Cetak Rekap Nilai - Kabupaten Kediri</title>
           <style>
             body { font-family: 'Inter', sans-serif; padding: 40px; color: #333; }
             .header { text-align: center; margin-bottom: 30px; border-bottom: 3px double #333; padding-bottom: 15px; }
@@ -2304,7 +2329,7 @@
               <p style="font-size: 10px; color: #666; margin: 2px 0;">NIP. .............................</p>
             </div>
             <div class="sig-box">
-              <p>Surabaya, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+              <p>Kabupaten Kediri, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
               <p style="margin-top: 60px; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 3px;">Guru Kelas</p>
               <p style="font-size: 10px; color: #666; margin: 2px 0;">NIP. .............................</p>
             </div>
@@ -2350,11 +2375,13 @@
         </th>
       `).join('');
 
-      // Baris Siswa
+      // Baris Siswa & Keterangan Kolektor
+      let notesCollectedList = [];
       const rowsHtml = classStudents.map((s, i) => {
         let totalHadir = 0;
-        const statusCellsHtml = classAttendance.map(att => {
+        const statusCellsHtml = classAttendance.map((att, attIdx) => {
           const status = att.records[s.id] || '-';
+          const note = att.notes && att.notes[s.id] ? att.notes[s.id] : '';
           if (status === 'Hadir') totalHadir++;
           
           let shortStatus = '-';
@@ -2363,6 +2390,16 @@
           else if (status === 'Sakit') { shortStatus = 'S'; color = '#d97706'; }
           else if (status === 'Izin') { shortStatus = 'I'; color = '#2563eb'; }
           else if (status === 'Alpa') { shortStatus = 'A'; color = '#dc2626'; }
+
+          if (note) {
+            shortStatus += '*';
+            notesCollectedList.push({
+              studentName: s.name,
+              meetingNum: attIdx + 1,
+              date: att.date,
+              note: note
+            });
+          }
 
           return `<td style="padding: 8px; text-align: center; font-weight: bold; color: ${color}; border: 1px solid #cbd5e1;">${shortStatus}</td>`;
         }).join('');
@@ -2379,10 +2416,26 @@
         `;
       }).join('');
 
+      // Catatan Khusus di Footer Laporan PDF
+      let notesSectionHtml = '';
+      if (notesCollectedList.length > 0) {
+        const notesItems = notesCollectedList.map(item => `
+          <li style="margin-bottom: 4px;"><b>${item.studentName}</b> (Pertemuan ${item.meetingNum} - ${item.date}): <span style="font-style: italic;">"${item.note}"</span></li>
+        `).join('');
+        notesSectionHtml = `
+          <div style="margin-top: 25px; border-top: 1px dashed #cbd5e1; padding-top: 15px;">
+            <h4 style="margin: 0 0 8px 0; font-size: 12px; color: #334155; text-transform: uppercase; letter-spacing: 0.5px;">Daftar Catatan Keterangan Khusus Siswa (*):</h4>
+            <ul style="margin: 0; padding-left: 20px; font-size: 11px; color: #475569; line-height: 1.6;">
+              ${notesItems}
+            </ul>
+          </div>
+        `;
+      }
+
       printWindow.document.write(`
         <html>
         <head>
-          <title>Rekap Absensi Kelas ${selectClass}</title>
+          <title>Rekap Absensi Kelas ${selectClass} - Kabupaten Kediri</title>
           <style>
             body { font-family: 'Inter', sans-serif; padding: 40px; color: #333; }
             .header { text-align: center; margin-bottom: 30px; border-bottom: 3px double #333; padding-bottom: 15px; }
@@ -2423,8 +2476,11 @@
             </tbody>
           </table>
           <div class="legend">
-            *Keterangan: <b>H</b> = Hadir, <b>S</b> = Sakit, <b>I</b> = Izin, <b>A</b> = Alpa (Ketidakhadiran Tanpa Keterangan)
+            *Keterangan: <b>H</b> = Hadir, <b>S</b> = Sakit, <b>I</b> = Izin, <b>A</b> = Alpa (Ketidakhadiran Tanpa Keterangan), <b>*</b> = Memiliki Catatan Khusus
           </div>
+          
+          ${notesSectionHtml}
+
           <div class="footer-sig">
             <div class="sig-box">
               <p>Mengetahui,</p>
@@ -2432,7 +2488,7 @@
               <p style="font-size: 10px; color: #666; margin: 2px 0;">NIP. .............................</p>
             </div>
             <div class="sig-box">
-              <p>Surabaya, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+              <p>Kabupaten Kediri, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
               <p style="margin-top: 60px; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 3px;">Guru Kelas</p>
               <p style="font-size: 10px; color: #666; margin: 2px 0;">NIP. .............................</p>
             </div>
