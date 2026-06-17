@@ -102,7 +102,7 @@
       </div>
     </div>
 
-    <!-- Navigasi Menu -->
+    <!-- Navigasi Menu: Ditata agar BAB & Materi ditaruh setelah Beranda & Ringkasan -->
     <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
       <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all bg-indigo-600 text-white shadow-md">
         <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
@@ -230,7 +230,7 @@
                   <input
                     type="text"
                     id="input-class-name"
-                    placeholder="Contoh: 10 MIPA 3, 11 IPS 2"
+                    placeholder="Contoh: Kelas 7, Kelas 8"
                     class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     required
                   />
@@ -318,6 +318,72 @@
         </div>
       </section>
 
+      <!-- ================= TAB: MATERI & BAB ================= -->
+      <section id="tab-materi" class="grid grid-cols-1 lg:grid-cols-12 gap-6 hidden">
+        <!-- Form Tambah BAB -->
+        <div class="lg:col-span-4 space-y-6">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm sticky top-6">
+            <h3 class="text-md font-bold text-slate-800 mb-4 flex items-center">
+              <i data-lucide="plus" class="w-5 h-5 text-indigo-600 mr-1.5"></i> Tambah BAB Baru
+            </h3>
+            <form id="form-save-chapter" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Judul BAB</label>
+                <input
+                  type="text"
+                  id="materi-input-chapter-title"
+                  placeholder="Contoh: BAB 3: Logika Gerbang"
+                  class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Deskripsi Umum BAB</label>
+                <textarea
+                  id="materi-input-chapter-desc"
+                  rows="3"
+                  placeholder="Deskripsi singkat target kompetensi dasar pembelajaran..."
+                  class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-lg transition-all"
+              >
+                Simpan BAB
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Daftar BAB & Sub-materi Accordion -->
+        <div class="lg:col-span-8 space-y-6">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 pb-2 border-b border-slate-100">
+              <h3 class="text-md font-bold text-slate-800 flex items-center">
+                <i data-lucide="book-marked" class="w-5 h-5 text-indigo-600 mr-2"></i>
+                Daftar Silabus & Detail Materi Persiapan Mengajar
+              </h3>
+              <!-- DROP-DOWN PILIHAN KELAS UNTUK MATERI & BAB -->
+              <div class="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pilih Kelas:</label>
+                <select
+                  id="materi-select-class-filter"
+                  class="text-xs font-bold bg-white text-indigo-600 focus:outline-none cursor-pointer"
+                >
+                  <!-- Diisi dinamis -->
+                </select>
+              </div>
+            </div>
+            <div id="materi-chapters-list" class="space-y-4">
+              <!-- Dinamis -->
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- ================= TAB: JURNAL ================= -->
       <section id="tab-jurnal" class="space-y-8 hidden">
         <!-- Form Jurnal -->
@@ -340,7 +406,7 @@
           </div>
 
           <form id="form-save-journal" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
               <!-- Tanggal Sesi -->
               <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Tanggal Sesi</label>
@@ -364,7 +430,20 @@
                 </select>
               </div>
 
-              <!-- Pilih BAB -->
+              <!-- Pertemuan Ke- (Dibuat otomatis dan cerdas) -->
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Pertemuan Ke-</label>
+                <input
+                  type="number"
+                  id="jurnal-input-meeting"
+                  min="1"
+                  placeholder="Contoh: 1"
+                  class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <!-- Pilih BAB (Hanya menampilkan materi spesifik kelas terpilih) -->
               <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Pilih BAB</label>
                 <select
@@ -484,7 +563,7 @@
                 </button>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 <div>
                   <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Pilih Kelas</label>
                   <select
@@ -501,6 +580,19 @@
                     type="date"
                     id="attendance-input-date"
                     class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  />
+                </div>
+
+                <!-- Kolom Pertemuan Ke- pada Modul Presensi -->
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Pertemuan Ke-</label>
+                  <input
+                    type="number"
+                    id="attendance-input-meeting"
+                    min="1"
+                    placeholder="Contoh: 1"
+                    class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    required
                   />
                 </div>
               </div>
@@ -543,60 +635,6 @@
             </div>
           </div>
 
-        </div>
-      </section>
-
-      <!-- ================= TAB: MATERI & BAB ================= -->
-      <section id="tab-materi" class="grid grid-cols-1 lg:grid-cols-12 gap-6 hidden">
-        <!-- Form Tambah BAB -->
-        <div class="lg:col-span-4 space-y-6">
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm sticky top-6">
-            <h3 class="text-md font-bold text-slate-800 mb-4 flex items-center">
-              <i data-lucide="plus" class="w-5 h-5 text-indigo-600 mr-1.5"></i> Tambah BAB Baru
-            </h3>
-            <form id="form-save-chapter" class="space-y-4">
-              <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Judul BAB</label>
-                <input
-                  type="text"
-                  id="materi-input-chapter-title"
-                  placeholder="Contoh: BAB 3: Logika Gerbang"
-                  class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Deskripsi Umum BAB</label>
-                <textarea
-                  id="materi-input-chapter-desc"
-                  rows="3"
-                  placeholder="Deskripsi singkat target kompetensi dasar pembelajaran..."
-                  class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                ></textarea>
-              </div>
-
-              <button
-                type="submit"
-                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-lg transition-all"
-              >
-                Simpan BAB
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <!-- Daftar BAB & Sub-materi Accordion -->
-        <div class="lg:col-span-8 space-y-6">
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 class="text-md font-bold text-slate-800 mb-6 flex items-center">
-              <i data-lucide="book-marked" class="w-5 h-5 text-indigo-600 mr-2"></i>
-              Daftar Silabus & Detail Materi Persiapan Mengajar
-            </h3>
-            <div id="materi-chapters-list" class="space-y-4">
-              <!-- Dinamis -->
-            </div>
-          </div>
         </div>
       </section>
 
@@ -644,7 +682,7 @@
                 <i data-lucide="info" class="w-3.5 h-3.5 mr-1"></i> Rumus Nilai Akhir Kelas:
               </p>
               <p class="text-slate-600">
-                Harian (40%) + UTS (30%) + UAS (30%). <span class="font-bold">KKM: 75</span>
+                Rata-rata (UH 1 & UH 2) (40%) + UTS (30%) + UAS (30%). <span class="font-bold">KKM: 75</span>
               </p>
             </div>
           </div>
@@ -656,7 +694,8 @@
             <thead>
               <tr class="border-b border-slate-200 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <th class="py-3 px-4">Nama Siswa</th>
-                <th class="py-3 px-4 text-center">Nilai Harian (40%)</th>
+                <th class="py-3 px-4 text-center">UH 1 (20%)</th>
+                <th class="py-3 px-4 text-center">UH 2 (20%)</th>
                 <th class="py-3 px-4 text-center">Nilai UTS (30%)</th>
                 <th class="py-3 px-4 text-center">Nilai UAS (30%)</th>
                 <th class="py-3 px-4 text-center">Nilai Akhir</th>
@@ -690,7 +729,7 @@
     let state = {
       classes: [],
       students: [],
-      chapters: [],
+      chapters: [], // Modul BAB dan materi akan menyimpan properti "class" masing-masing
       journals: [],
       attendance: [],
       ta: '2026/2027',
@@ -740,12 +779,30 @@
       document.getElementById('nilai-input-search').addEventListener('input', renderGrades);
 
       // Event listener input absen
-      document.getElementById('attendance-select-class').addEventListener('change', loadAttendanceRecord);
-      document.getElementById('attendance-input-date').addEventListener('change', loadAttendanceRecord);
+      document.getElementById('attendance-select-class').addEventListener('change', () => {
+        autoCalculateMeetingNumber('attendance');
+        loadAttendanceRecord();
+      });
+      document.getElementById('attendance-input-date').addEventListener('change', () => {
+        autoCalculateMeetingNumber('attendance');
+        loadAttendanceRecord();
+      });
+
+      // Event listener Jurnal
+      document.getElementById('jurnal-select-class').addEventListener('change', () => {
+        autoCalculateMeetingNumber('jurnal');
+        handleJournalClassChange();
+      });
+      document.getElementById('jurnal-input-date').addEventListener('change', () => {
+        autoCalculateMeetingNumber('jurnal');
+      });
 
       // Sinkronisasi dropdown Jurnal berdasarkan BAB yang dipilih
       document.getElementById('jurnal-select-chapter').addEventListener('change', handleJournalChapterChange);
       document.getElementById('jurnal-select-topic').addEventListener('change', handleJournalTopicChange);
+
+      // Sinkronisasi pelacakan kelas di silabus
+      document.getElementById('materi-select-class-filter').addEventListener('change', renderChaptersView);
 
       // Event listener selektor global di Header
       document.getElementById('global-ta-select').addEventListener('change', handleGlobalTaChange);
@@ -753,6 +810,12 @@
 
       // Daftarkan listener submit form
       setupFormListeners();
+
+      // Hitung otomatis nomor pertemuan di awal
+      setTimeout(() => {
+        autoCalculateMeetingNumber('jurnal');
+        autoCalculateMeetingNumber('attendance');
+      }, 100);
 
       // Render awal semua komponen
       renderAll();
@@ -910,6 +973,38 @@
       renderAll();
     }
 
+    // ================= OTOMATISASI HITUNG PERTEMUAN KE- (MENGHINDARI LUPA) =================
+    function autoCalculateMeetingNumber(type) {
+      if (type === 'jurnal') {
+        const className = document.getElementById('jurnal-select-class').value;
+        if (!className) return;
+
+        // Ambil semua entri jurnal untuk kelas tersebut
+        const classJournals = state.journals.filter(j => j.class === className && j.ta === state.ta && j.semester === state.semester);
+        
+        let nextMeetingNum = 1;
+        if (classJournals.length > 0) {
+          const nums = classJournals.map(j => parseInt(j.meetingNum) || 0);
+          nextMeetingNum = Math.max(...nums, 0) + 1;
+        }
+        document.getElementById('jurnal-input-meeting').value = nextMeetingNum;
+
+      } else if (type === 'attendance') {
+        const className = document.getElementById('attendance-select-class').value;
+        if (!className) return;
+
+        // Ambil semua entri kehadiran untuk kelas tersebut
+        const classAttendance = state.attendance.filter(a => a.class === className && a.ta === state.ta && a.semester === state.semester);
+
+        let nextMeetingNum = 1;
+        if (classAttendance.length > 0) {
+          const nums = classAttendance.map(a => parseInt(a.meetingNum) || 0);
+          nextMeetingNum = Math.max(...nums, 0) + 1;
+        }
+        document.getElementById('attendance-input-meeting').value = nextMeetingNum;
+      }
+    }
+
     // ================= FORM SUBMISSION HANDLERS =================
     function setupFormListeners() {
       // Form Tambah Kelas
@@ -942,7 +1037,7 @@
           id: 's_' + Date.now(),
           name: nameVal,
           class: classVal,
-          grades: { harian: 0, uts: 0, uas: 0 }
+          grades: { uh1: 0, uh2: 0, uts: 0, uas: 0 }
         };
 
         state.students.push(newStudent);
@@ -956,13 +1051,16 @@
         e.preventDefault();
         const dateVal = document.getElementById('jurnal-input-date').value;
         const classVal = document.getElementById('jurnal-select-class').value;
+        const meetingNumVal = document.getElementById('jurnal-input-meeting').value;
         const chapIndex = document.getElementById('jurnal-select-chapter').value;
         const topicIndex = document.getElementById('jurnal-select-topic').value;
         const notesVal = document.getElementById('jurnal-input-notes').value.trim();
         const impedimentVal = document.getElementById('jurnal-input-impediment').value.trim();
         const solutionVal = document.getElementById('jurnal-input-solution').value.trim();
 
-        const chapterObj = state.chapters[chapIndex];
+        // Cari BAB dari state yang sesuai dengan kelas aktif
+        const activeClassChapters = state.chapters.filter(c => c.class === classVal);
+        const chapterObj = activeClassChapters[chapIndex];
         const topicObj = chapterObj?.topics[topicIndex];
 
         if (!classVal || !chapterObj || !topicObj) {
@@ -974,6 +1072,7 @@
           id: 'j_' + Date.now(),
           date: dateVal,
           class: classVal,
+          meetingNum: meetingNumVal,
           chapter: chapterObj.title,
           topic: topicObj.title,
           notes: notesVal,
@@ -992,13 +1091,20 @@
         
         showToast("Catatan Jurnal Mengajar berhasil ditambahkan.");
         saveState();
+        autoCalculateMeetingNumber('jurnal');
       };
 
-      // Form Tambah BAB Baru
+      // Form Tambah BAB Baru (Terkoneksi ke kelas yang aktif dipilih)
       document.getElementById('form-save-chapter').onsubmit = function(e) {
         e.preventDefault();
         const titleVal = document.getElementById('materi-input-chapter-title').value.trim();
         const descVal = document.getElementById('materi-input-chapter-desc').value.trim();
+        const activeClass = document.getElementById('materi-select-class-filter').value;
+
+        if (!activeClass) {
+          showToast("Gagal! Buat kelas terlebih dahulu di tab Beranda.", "error");
+          return;
+        }
 
         if (!titleVal) return;
 
@@ -1006,6 +1112,7 @@
           id: 'c_' + Date.now(),
           title: titleVal,
           description: descVal || 'Tidak ada deskripsi BAB.',
+          class: activeClass, // Mengikat BAB ini khusus untuk kelas yang aktif dipilih
           topics: []
         };
 
@@ -1015,7 +1122,7 @@
         document.getElementById('materi-input-chapter-title').value = '';
         document.getElementById('materi-input-chapter-desc').value = '';
         
-        showToast(`BAB baru: "${titleVal}" berhasil disimpan.`);
+        showToast(`BAB baru: "${titleVal}" berhasil disimpan untuk kelas ${activeClass}.`);
         saveState();
       };
     }
@@ -1058,17 +1165,12 @@
         });
       }
 
-      // Dropdown Kelas & BAB di Tab Jurnal
+      // Dropdown Kelas di Tab Jurnal
       const jurnalSelectClass = document.getElementById('jurnal-select-class');
+      const savedSelJurnalClass = jurnalSelectClass.value;
       jurnalSelectClass.innerHTML = '';
       state.classes.forEach(c => {
-        jurnalSelectClass.innerHTML += `<option value="${c}">${c}</option>`;
-      });
-
-      const jurnalSelectChapter = document.getElementById('jurnal-select-chapter');
-      jurnalSelectChapter.innerHTML = '';
-      state.chapters.forEach((ch, idx) => {
-        jurnalSelectChapter.innerHTML += `<option value="${idx}">${ch.title}</option>`;
+        jurnalSelectClass.innerHTML += `<option value="${c}" ${c === savedSelJurnalClass ? 'selected' : ''}>${c}</option>`;
       });
 
       // Dropdown Kelas di Tab Kehadiran
@@ -1086,6 +1188,20 @@
       state.classes.forEach(c => {
         nilaiSelectClass.innerHTML += `<option value="${c}" ${c === savedSelNilClass ? 'selected' : ''}>${c}</option>`;
       });
+
+      // Dropdown Kelas di Tab Materi & BAB
+      const materiSelectClassFilter = document.getElementById('materi-select-class-filter');
+      const savedMateriClassFilter = materiSelectClassFilter ? materiSelectClassFilter.value : '';
+      if (materiSelectClassFilter) {
+        materiSelectClassFilter.innerHTML = '';
+        if (state.classes.length === 0) {
+          materiSelectClassFilter.innerHTML = `<option value="">Tidak Ada Kelas</option>`;
+        } else {
+          state.classes.forEach(c => {
+            materiSelectClassFilter.innerHTML += `<option value="${c}" ${c === savedMateriClassFilter ? 'selected' : ''}>${c}</option>`;
+          });
+        }
+      }
     }
 
     // ================= RENDERING: TAB DASHBOARD =================
@@ -1159,14 +1275,24 @@
       const formEl = document.getElementById('form-save-journal');
       const warningEl = document.getElementById('jurnal-warning');
 
-      if (state.chapters.length === 0) {
+      // Ambil materi yang didaftarkan khusus untuk kelas aktif di Jurnal
+      const activeClass = document.getElementById('jurnal-select-class').value;
+      const activeClassChapters = state.chapters.filter(c => c.class === activeClass);
+
+      if (activeClassChapters.length === 0) {
         formEl.classList.add('hidden');
         warningEl.classList.remove('hidden');
       } else {
         formEl.classList.remove('hidden');
         warningEl.classList.add('hidden');
         
-        // Pemicu pemutakhiran dropdown subtopic pertama kali
+        // Perbarui dropdown pilihan BAB agar sesuai dengan materi kelas tersebut
+        const jurnalSelectChapter = document.getElementById('jurnal-select-chapter');
+        jurnalSelectChapter.innerHTML = '';
+        activeClassChapters.forEach((ch, idx) => {
+          jurnalSelectChapter.innerHTML += `<option value="${idx}">${ch.title}</option>`;
+        });
+
         handleJournalChapterChange();
       }
 
@@ -1213,6 +1339,9 @@
                     <span class="text-xs font-extrabold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded border border-indigo-200">
                       ${j.class}
                     </span>
+                    <span class="text-xs font-bold bg-violet-50 text-violet-700 px-2.5 py-1 rounded border border-violet-150">
+                      Pertemuan ke-${j.meetingNum || '1'}
+                    </span>
                     <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded font-medium border border-slate-200">
                       ${j.date}
                     </span>
@@ -1253,12 +1382,19 @@
       }
     }
 
+    function handleJournalClassChange() {
+      renderJournalsView();
+    }
+
     function handleJournalChapterChange() {
+      const activeClass = document.getElementById('jurnal-select-class').value;
+      const activeClassChapters = state.chapters.filter(c => c.class === activeClass);
+      
       const chapIndex = document.getElementById('jurnal-select-chapter').value;
       const selectTopic = document.getElementById('jurnal-select-topic');
       selectTopic.innerHTML = '';
 
-      const chapter = state.chapters[chapIndex];
+      const chapter = activeClassChapters[chapIndex];
       if (chapter && chapter.topics && chapter.topics.length > 0) {
         chapter.topics.forEach((t, i) => {
           selectTopic.innerHTML += `<option value="${i}">${t.title}</option>`;
@@ -1271,11 +1407,14 @@
     }
 
     function handleJournalTopicChange() {
+      const activeClass = document.getElementById('jurnal-select-class').value;
+      const activeClassChapters = state.chapters.filter(c => c.class === activeClass);
+
       const chapIndex = document.getElementById('jurnal-select-chapter').value;
       const topicIndex = document.getElementById('jurnal-select-topic').value;
       const previewEl = document.getElementById('jurnal-topic-preview');
 
-      const chapter = state.chapters[chapIndex];
+      const chapter = activeClassChapters[chapIndex];
       const topic = chapter?.topics[topicIndex];
 
       if (topic) {
@@ -1423,6 +1562,7 @@
     function saveAttendanceRecord() {
       const selectClass = document.getElementById('attendance-select-class').value;
       const inputDate = document.getElementById('attendance-input-date').value;
+      const meetingNumVal = document.getElementById('attendance-input-meeting').value;
 
       if (!selectClass || !inputDate) return;
 
@@ -1431,6 +1571,7 @@
         id: existingIndex !== -1 ? state.attendance[existingIndex].id : 'att_' + Date.now(),
         date: inputDate,
         class: selectClass,
+        meetingNum: meetingNumVal,
         records: { ...attendanceRecordsTemp },
         notes: { ...attendanceNotesTemp },
         ta: state.ta,
@@ -1445,6 +1586,7 @@
 
       showToast(`Presensi kelas ${selectClass} tanggal ${inputDate} berhasil disimpan.`);
       saveState();
+      autoCalculateMeetingNumber('attendance');
     }
 
     function renderAttendanceHistory() {
@@ -1461,21 +1603,8 @@
           </div>
         `;
       } else {
-        // Urutkan secara kronologis (terlama ke terbaru) untuk menghitung Pertemuan Ke-X per Kelas
-        const sortedAttendance = [...state.attendance].sort((a, b) => new Date(a.date) - new Date(b.date));
-        const classCounters = {};
-        const meetingNumbers = {};
-
-        sortedAttendance.forEach(att => {
-          if (!classCounters[att.class]) {
-            classCounters[att.class] = 0;
-          }
-          classCounters[att.class] += 1;
-          meetingNumbers[att.id] = classCounters[att.class];
-        });
-
         semesterAttendance.forEach(att => {
-          const meetingNum = meetingNumbers[att.id] || 1;
+          const meetingNum = att.meetingNum || 1;
           const vals = Object.values(att.records);
           const hadir = vals.filter(v => v === 'Hadir').length;
           const sakit = vals.filter(v => v === 'Sakit').length;
@@ -1551,13 +1680,7 @@
       if (!att) return;
 
       selectedAttRecordIdForLoad = id;
-
-      // Cari nomor pertemuan kronologis khusus kelas ini untuk judul pop-up
-      const classSorted = state.attendance
-        .filter(a => a.class === att.class)
-        .sort((a, b) => new Date(a.date) - new Date(b.date));
-      const meetingIndex = classSorted.findIndex(a => a.id === id);
-      const meetingNum = meetingIndex !== -1 ? meetingIndex + 1 : 1;
+      const meetingNum = att.meetingNum || 1;
 
       document.getElementById('att-detail-title').innerText = `Kehadiran Kelas ${att.class} (Pertemuan ke-${meetingNum})`;
       document.getElementById('att-detail-subtitle').innerText = `Tanggal Pelaksanaan: ${att.date}`;
@@ -1620,6 +1743,7 @@
       // Set input filter form ke log yang dipilih
       document.getElementById('attendance-select-class').value = att.class;
       document.getElementById('attendance-input-date').value = att.date;
+      document.getElementById('attendance-input-meeting').value = att.meetingNum || 1;
 
       // Render ulang tampilan form presensi
       renderAttendanceView();
@@ -1645,16 +1769,45 @@
       const listContainer = document.getElementById('materi-chapters-list');
       listContainer.innerHTML = '';
 
-      if (state.chapters.length === 0) {
+      const filterClass = document.getElementById('materi-select-class-filter')?.value || '';
+
+      // Saring data BAB yang didaftarkan khusus untuk kelas terpilih saja
+      const classChapters = state.chapters.filter(c => c.class === filterClass);
+
+      if (!filterClass) {
         listContainer.innerHTML = `
           <div class="text-center py-12 text-slate-400 text-sm">
-            Belum ada materi terdaftar. Silakan buat BAB pertama Anda menggunakan form sebelah kiri.
+            Silakan buat dan daftarkan kelas baru terlebih dahulu.
+          </div>
+        `;
+        return;
+      }
+
+      if (classChapters.length === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-12 text-slate-400 text-sm">
+            Belum ada materi terdaftar untuk <strong>${filterClass}</strong>. Silakan buat BAB baru menggunakan form sebelah kiri.
           </div>
         `;
       } else {
-        state.chapters.forEach((chapter, index) => {
+        classChapters.forEach((chapter, index) => {
           const isExpanded = expandedChapters[chapter.id];
           
+          // Cari jurnal mengajar yang sesuai dengan kelas, semester, dan TA aktif
+          const classJournals = state.journals.filter(j => 
+            j.class === filterClass && 
+            j.ta === state.ta && 
+            j.semester === state.semester &&
+            j.chapter === chapter.title
+          );
+
+          // Hitung berapa sub-materi yang sudah diajarkan untuk kelas terpilih
+          let taughtCount = 0;
+          chapter.topics.forEach(topic => {
+            const isTaught = classJournals.some(j => j.topic === topic.title);
+            if (isTaught) taughtCount++;
+          });
+
           // Generate sub-topics list
           let topicsHtml = '';
           if (chapter.topics.length === 0) {
@@ -1662,64 +1815,106 @@
           } else {
             topicsHtml = `
               <div class="space-y-3">
-                ${chapter.topics.map(t => `
-                  <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-150 flex flex-col gap-2 shadow-sm">
-                    <div class="flex justify-between items-start gap-3">
-                      <div class="flex-1">
-                        <h6 class="text-sm font-bold text-slate-700">${t.title}</h6>
-                        <p class="text-xs text-slate-500 mt-1 whitespace-pre-wrap leading-relaxed">${t.content}</p>
-                      </div>
-                      <div class="flex items-center space-x-1.5">
-                        <button
-                          onclick="toggleEditTopicForm('${chapter.id}', '${t.id}')"
-                          class="text-indigo-500 hover:bg-indigo-50 p-1.5 rounded transition-colors"
-                          title="Edit Sub-materi"
-                        >
-                          <i data-lucide="edit-3" class="w-4 h-4"></i>
-                        </button>
-                        <button
-                          onclick="deleteTopic('${chapter.id}', '${t.id}')"
-                          class="text-rose-400 hover:bg-rose-50 p-1.5 rounded transition-colors"
-                          title="Hapus Sub-materi"
-                        >
-                          <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                      </div>
-                    </div>
+                ${chapter.topics.map(t => {
+                  // Cari entri jurnal spesifik untuk sub-materi ini
+                  const teachingRecord = classJournals.find(j => j.topic === t.title);
+                  
+                  // Siapkan badge status progres pembelajaran
+                  let statusBadge = '';
+                  if (teachingRecord) {
+                    statusBadge = `
+                      <span class="inline-flex items-center text-[10px] font-extrabold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
+                        <i data-lucide="check-circle" class="w-3 h-3 mr-1 text-emerald-600"></i>
+                        Sudah Diajarkan (Pertemuan ke-${teachingRecord.meetingNum || '-'} pada ${teachingRecord.date})
+                      </span>
+                    `;
+                  } else {
+                    statusBadge = `
+                      <span class="inline-flex items-center text-[10px] font-extrabold bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
+                        <i data-lucide="help-circle" class="w-3 h-3 mr-1 text-amber-500"></i>
+                        Belum Diajarkan
+                      </span>
+                    `;
+                  }
 
-                    <!-- FORM EDIT TOPIC (INLINE) -->
-                    <div id="edit-topic-form-${chapter.id}-${t.id}" class="hidden mt-2 p-3 bg-indigo-50/40 rounded-xl border border-indigo-100 space-y-3">
-                      <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block">Ubah Sub-Materi</span>
-                      <input
-                        type="text"
-                        id="edit-topic-title-${chapter.id}-${t.id}"
-                        value="${t.title}"
-                        class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white"
-                      />
-                      <textarea
-                        id="edit-topic-content-${chapter.id}-${t.id}"
-                        rows="2"
-                        class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white"
-                      >${t.content}</textarea>
-                      <div class="flex justify-end space-x-2">
-                        <button
-                          onclick="saveTopicEdit('${chapter.id}', '${t.id}')"
-                          class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all"
-                        >
-                          Simpan
-                        </button>
-                        <button
-                          onclick="toggleEditTopicForm('${chapter.id}', '${t.id}')"
-                          class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all"
-                        >
-                          Batal
-                        </button>
+                  return `
+                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-150 flex flex-col gap-2 shadow-sm">
+                      <div class="flex justify-between items-start gap-3">
+                        <div class="flex-1">
+                          <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                            <h6 class="text-sm font-bold text-slate-700">${t.title}</h6>
+                            ${statusBadge}
+                          </div>
+                          <p class="text-xs text-slate-500 mt-1 whitespace-pre-wrap leading-relaxed">${t.content}</p>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                          <button
+                            onclick="toggleEditTopicForm('${chapter.id}', '${t.id}')"
+                            class="text-indigo-500 hover:bg-indigo-50 p-1.5 rounded transition-colors"
+                            title="Edit Sub-materi"
+                          >
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                          </button>
+                          <button
+                            onclick="deleteTopic('${chapter.id}', '${t.id}')"
+                            class="text-rose-400 hover:bg-rose-50 p-1.5 rounded transition-colors"
+                            title="Hapus Sub-materi"
+                          >
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                          </button>
+                        </div>
                       </div>
-                    </div>
 
-                  </div>
-                `).join('')}
+                      <!-- FORM EDIT TOPIC (INLINE) -->
+                      <div id="edit-topic-form-${chapter.id}-${t.id}" class="hidden mt-2 p-3 bg-indigo-50/40 rounded-xl border border-indigo-100 space-y-3">
+                        <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block">Ubah Sub-Materi</span>
+                        <input
+                          type="text"
+                          id="edit-topic-title-${chapter.id}-${t.id}"
+                          value="${t.title}"
+                          class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white"
+                        />
+                        <textarea
+                          id="edit-topic-content-${chapter.id}-${t.id}"
+                          rows="2"
+                          class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white"
+                        >${t.content}</textarea>
+                        <div class="flex justify-end space-x-2">
+                          <button
+                            onclick="saveTopicEdit('${chapter.id}', '${t.id}')"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all"
+                          >
+                            Simpan
+                          </button>
+                          <button
+                            onclick="toggleEditTopicForm('${chapter.id}', '${t.id}')"
+                            class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all"
+                          >
+                            Batal
+                          </button>
+                        </div>
+                      </div>
+
+                    </div>
+                  `;
+                }).join('')}
               </div>
+            `;
+          }
+
+          // Summary badge total progress ajar di Header BAB
+          let progressChapterBadge = `
+            <span class="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full shrink-0 border border-indigo-150">
+              ${chapter.topics.length} Sub-Materi
+            </span>
+          `;
+          if (chapter.topics.length > 0) {
+            const isAllTaught = taughtCount === chapter.topics.length;
+            const badgeBg = isAllTaught ? 'bg-emerald-50 text-emerald-700 border-emerald-150' : 'bg-amber-50 text-amber-700 border-amber-150';
+            progressChapterBadge = `
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 border ${badgeBg}">
+                Diajarkan: ${taughtCount}/${chapter.topics.length} Sub-Materi
+              </span>
             `;
           }
 
@@ -1736,9 +1931,7 @@
                   <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">${chapter.description}</p>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <span class="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full shrink-0 border border-indigo-150">
-                    ${chapter.topics.length} Sub-Materi
-                  </span>
+                  ${progressChapterBadge}
                   <i data-lucide="chevron-right" class="w-5 h-5 text-slate-400 transform transition-transform ${isExpanded ? 'rotate-90' : ''}"></i>
                 </div>
               </div>
@@ -1799,7 +1992,7 @@
                     <textarea
                       id="input-topic-content-${chapter.id}"
                       rows="1"
-                      placeholder="Rincian / Detail materi penjelasan untuk diajarkan..."
+                      placeholder="Rincian / Detail materi penjelasan..."
                       class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white resize-none"
                     ></textarea>
                   </div>
@@ -1987,7 +2180,7 @@
       if (filteredStudents.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" class="text-center py-12 text-slate-400 text-sm">
+            <td colspan="8" class="text-center py-12 text-slate-400 text-sm">
               Tidak ditemukan data siswa untuk kriteria pencarian ini.
             </td>
           </tr>
@@ -1995,7 +2188,14 @@
       } else {
         filteredStudents.forEach(student => {
           const isEditing = editingStudentId === student.id;
-          const finalGrade = (student.grades.harian * 0.4) + (student.grades.uts * 0.3) + (student.grades.uas * 0.3);
+
+          const uh1 = typeof student.grades.uh1 !== 'undefined' ? student.grades.uh1 : (student.grades.harian || 0);
+          const uh2 = typeof student.grades.uh2 !== 'undefined' ? student.grades.uh2 : (student.grades.harian || 0);
+          const uts = student.grades.uts || 0;
+          const uas = student.grades.uas || 0;
+
+          const avgHarian = (uh1 + uh2) / 2;
+          const finalGrade = (avgHarian * 0.4) + (uts * 0.3) + (uas * 0.3);
           
           // Penentuan Kelulusan (KKM: 75)
           const passed = finalGrade >= 75;
@@ -2012,8 +2212,17 @@
               <td class="py-4 px-4 text-center">
                 <input
                   type="number"
-                  id="edit-harian-${student.id}"
-                  value="${student.grades.harian}"
+                  id="edit-uh1-${student.id}"
+                  value="${uh1}"
+                  class="w-16 px-2 py-1 text-center border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 text-sm"
+                  min="0" max="100"
+                />
+              </td>
+              <td class="py-4 px-4 text-center">
+                <input
+                  type="number"
+                  id="edit-uh2-${student.id}"
+                  value="${uh2}"
                   class="w-16 px-2 py-1 text-center border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 text-sm"
                   min="0" max="100"
                 />
@@ -2022,7 +2231,7 @@
                 <input
                   type="number"
                   id="edit-uts-${student.id}"
-                  value="${student.grades.uts}"
+                  value="${uts}"
                   class="w-16 px-2 py-1 text-center border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 text-sm"
                   min="0" max="100"
                 />
@@ -2031,7 +2240,7 @@
                 <input
                   type="number"
                   id="edit-uas-${student.id}"
-                  value="${student.grades.uas}"
+                  value="${uas}"
                   class="w-16 px-2 py-1 text-center border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 text-sm"
                   min="0" max="100"
                 />
@@ -2049,13 +2258,16 @@
           } else {
             scoreCells = `
               <td class="py-4 px-4 text-center">
-                <span class="font-medium text-slate-700">${student.grades.harian}</span>
+                <span class="font-medium text-slate-700">${uh1}</span>
               </td>
               <td class="py-4 px-4 text-center">
-                <span class="font-medium text-slate-700">${student.grades.uts}</span>
+                <span class="font-medium text-slate-700">${uh2}</span>
               </td>
               <td class="py-4 px-4 text-center">
-                <span class="font-medium text-slate-700">${student.grades.uas}</span>
+                <span class="font-medium text-slate-700">${uts}</span>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="font-medium text-slate-700">${uas}</span>
               </td>
             `;
 
@@ -2113,7 +2325,8 @@
     }
 
     function saveStudentGrades(studentId) {
-      const harianVal = parseFloat(document.getElementById(`edit-harian-${studentId}`).value);
+      const uh1Val = parseFloat(document.getElementById(`edit-uh1-${studentId}`).value);
+      const uh2Val = parseFloat(document.getElementById(`edit-uh2-${studentId}`).value);
       const utsVal = parseFloat(document.getElementById(`edit-uts-${studentId}`).value);
       const uasVal = parseFloat(document.getElementById(`edit-uas-${studentId}`).value);
 
@@ -2129,7 +2342,8 @@
           return {
             ...s,
             grades: {
-              harian: cleanGrade(harianVal),
+              uh1: cleanGrade(uh1Val),
+              uh2: cleanGrade(uh2Val),
               uts: cleanGrade(utsVal),
               uas: cleanGrade(uasVal)
             }
@@ -2160,7 +2374,6 @@
 
     // ================= EXPERT PRINT & REPORT GENERATORS =================
     function printJurnal() {
-      // Saring jurnal semester aktif
       const activeJournals = state.journals.filter(j => j.ta === state.ta && j.semester === state.semester);
       if (activeJournals.length === 0) {
         showToast("Tidak ada data jurnal di semester ini untuk dicetak.", "error");
@@ -2171,7 +2384,7 @@
       const rowsHtml = activeJournals.map((j, i) => `
         <tr style="border-bottom: 1px solid #ddd;">
           <td style="padding: 10px; font-size: 11px;">${i + 1}</td>
-          <td style="padding: 10px; font-size: 11px; white-space: nowrap;">${j.date}<br><b>Kelas: ${j.class}</b></td>
+          <td style="padding: 10px; font-size: 11px; white-space: nowrap;">${j.date}<br><b>Kelas: ${j.class}</b><br><span style="color:#4f46e5;font-weight:bold;">Pertemuan ke-${j.meetingNum || '1'}</span></td>
           <td style="padding: 10px; font-size: 11px;"><b>${j.chapter}</b><br><span style="color:#4f46e5">${j.topic}</span></td>
           <td style="padding: 10px; font-size: 11px; max-width: 200px;">${j.notes}</td>
           <td style="padding: 10px; font-size: 11px; max-width: 150px; color: #b91c1c;">${j.impediment || '-'}</td>
@@ -2213,7 +2426,7 @@
             <thead>
               <tr>
                 <th style="width: 5%">No</th>
-                <th style="width: 15%">Tanggal & Kelas</th>
+                <th style="width: 15%">Tanggal, Kelas & Pertemuan</th>
                 <th style="width: 25%">Materi / BAB</th>
                 <th style="width: 25%">Catatan Kegiatan</th>
                 <th style="width: 15%">Kendala</th>
@@ -2259,8 +2472,16 @@
       }
 
       const printWindow = window.open('', '_blank');
+      
       const rowsHtml = filteredStudents.map((s, i) => {
-        const finalGrade = (s.grades.harian * 0.4) + (s.grades.uts * 0.3) + (s.grades.uas * 0.3);
+        const uh1 = typeof s.grades.uh1 !== 'undefined' ? s.grades.uh1 : (s.grades.harian || 0);
+        const uh2 = typeof s.grades.uh2 !== 'undefined' ? s.grades.uh2 : (s.grades.harian || 0);
+        const uts = s.grades.uts || 0;
+        const uas = s.grades.uas || 0;
+        
+        const avgHarian = (uh1 + uh2) / 2;
+        const finalGrade = (avgHarian * 0.4) + (uts * 0.3) + (uas * 0.3);
+        
         const passed = finalGrade >= 75;
         const statusText = passed ? "LULUS" : "REMEDIAL";
         const statusColor = passed ? "#047857" : "#b91c1c";
@@ -2268,9 +2489,10 @@
           <tr style="border-bottom: 1px solid #ddd; text-align: center;">
             <td style="padding: 10px; font-size: 11px; text-align: left;">${i + 1}</td>
             <td style="padding: 10px; font-size: 11px; text-align: left;"><b>${s.name}</b><br><small style="color:#777;">ID: ${s.id}</small></td>
-            <td style="padding: 10px; font-size: 11px;">${s.grades.harian}</td>
-            <td style="padding: 10px; font-size: 11px;">${s.grades.uts}</td>
-            <td style="padding: 10px; font-size: 11px;">${s.grades.uas}</td>
+            <td style="padding: 10px; font-size: 11px;">${uh1}</td>
+            <td style="padding: 10px; font-size: 11px;">${uh2}</td>
+            <td style="padding: 10px; font-size: 11px;">${uts}</td>
+            <td style="padding: 10px; font-size: 11px;">${uas}</td>
             <td style="padding: 10px; font-size: 11px; font-weight: bold;">${finalGrade.toFixed(1)}</td>
             <td style="padding: 10px; font-size: 11px; font-weight: bold; color: ${statusColor};">${statusText}</td>
           </tr>
@@ -2288,7 +2510,7 @@
             .header p { margin: 5px 0 0 0; font-size: 12px; color: #666; }
             .meta-info { margin-bottom: 20px; font-size: 12px; display: flex; justify-content: space-between; font-weight: bold; }
             table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            th { background-color: #f1f5f9; padding: 12px 10px; text-align: center; font-size: 12px; border-bottom: 2px solid #cbd5e1; }
+            th { background-color: #f1f5f9; padding: 12px 10px; font-size: 11px; border: 1px solid #cbd5e1; }
             .footer-sig { margin-top: 50px; display: flex; justify-content: space-between; font-size: 12px; }
             .sig-box { text-align: center; width: 200px; }
             @media print {
@@ -2309,13 +2531,14 @@
           <table>
             <thead>
               <tr>
-                <th style="width: 5%; text-align: left;">No</th>
-                <th style="width: 35%; text-align: left;">Nama Siswa</th>
-                <th style="width: 15%">Nilai Harian (40%)</th>
-                <th style="width: 15%">Nilai UTS (30%)</th>
-                <th style="width: 15%">Nilai UAS (30%)</th>
-                <th style="width: 15%">Nilai Akhir</th>
-                <th style="width: 15%">Kelulusan (KKM: 75)</th>
+                <th style="width: 5%; text-align: left; border: 1px solid #cbd5e1;">No</th>
+                <th style="width: 25%; text-align: left; border: 1px solid #cbd5e1;">Nama Siswa</th>
+                <th style="width: 11%; text-align: center; border: 1px solid #cbd5e1;">UH 1 (20%)</th>
+                <th style="width: 11%; text-align: center; border: 1px solid #cbd5e1;">UH 2 (20%)</th>
+                <th style="width: 12%; text-align: center; border: 1px solid #cbd5e1;">Nilai UTS (30%)</th>
+                <th style="width: 12%; text-align: center; border: 1px solid #cbd5e1;">Nilai UAS (30%)</th>
+                <th style="width: 12%; text-align: center; border: 1px solid #cbd5e1;">Nilai Akhir</th>
+                <th style="width: 12%; text-align: center; border: 1px solid #cbd5e1;">Kelulusan (KKM: 75)</th>
               </tr>
             </thead>
             <tbody>
@@ -2369,9 +2592,9 @@
       const printWindow = window.open('', '_blank');
 
       // Header Tanggal Kolom
-      const dateHeadersHtml = classAttendance.map((att, i) => `
+      const dateHeadersHtml = classAttendance.map((att) => `
         <th style="font-size: 10px; padding: 8px; text-align: center; border: 1px solid #cbd5e1;">
-          Pertemuan ${i + 1}<br><small style="color: #666; font-weight: normal;">${att.date}</small>
+          Pertemuan ${att.meetingNum || '-'}<br><small style="color: #666; font-weight: normal;">${att.date}</small>
         </th>
       `).join('');
 
@@ -2395,7 +2618,7 @@
             shortStatus += '*';
             notesCollectedList.push({
               studentName: s.name,
-              meetingNum: attIdx + 1,
+              meetingNum: att.meetingNum || (attIdx + 1),
               date: att.date,
               note: note
             });
